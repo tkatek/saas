@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerGym — Logiciel de Gestion de Salle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0a0a0a;
+  --dark: #111111;
+  --card: #161616;
+  --border: #222222;
+  --orange: #FF4500;
+  --orange-light: #FF6B35;
+  --orange-glow: rgba(255,69,0,0.15);
+  --green: #00FF88;
+  --white: #f5f5f0;
+  --muted: #888888;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-ui: 'Syne', sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  padding-top: 6.5rem;
+}
+
+/* ---- LANG SWITCH ---- */
+.lang-fr [data-en], .lang-en [data-fr] { display: none !important; }
+.lang-fr [data-fr], .lang-en [data-en] { display: revert; }
+
+/* ---- NAV ---- */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+  padding: 1.2rem 2.5rem;
+  background: rgba(10,10,10,0.98);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,69,0,0.12);
+  transition: padding 0.3s;
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: .7rem;
+  text-decoration: none;
+}
+.nav-logo-icon {
+  width: 38px; height: 38px; background: var(--orange);
+  border-radius: 10px; display: grid; place-items: center; font-size: 1.2rem;
+}
+.nav-logo-text { font-family: var(--font-ui); font-weight: 800; font-size: 1.1rem; color: var(--white); }
+.nav-logo-text span { color: var(--orange); }
+
+.nav-links { display: flex; align-items: center; gap: 2rem; }
+.nav-links a {
+  font-family: var(--font-ui); font-size: .85rem; font-weight: 600;
+  color: var(--muted); text-decoration: none; letter-spacing: .06em;
+  text-transform: uppercase; transition: color .2s;
+}
+.nav-links a:hover { color: var(--white); }
+
+.nav-actions { display: flex; align-items: center; gap: 1rem; }
+
+.lang-toggle {
+  display: flex; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.lang-btn {
+  padding: .35rem .75rem; font-family: var(--font-ui); font-size: .78rem;
+  font-weight: 700; cursor: pointer; border: none; background: transparent;
+  color: var(--muted); transition: all .2s; letter-spacing: .05em;
+}
+.lang-btn.active { background: var(--orange); color: #fff; }
+
+.btn-cta-nav {
+  padding: .5rem 1.3rem; background: var(--orange); color: #fff;
+  border: none; border-radius: 8px; font-family: var(--font-ui);
+  font-size: .85rem; font-weight: 700; cursor: pointer; text-decoration: none;
+  transition: transform .15s, box-shadow .15s;
+  letter-spacing: .04em;
+}
+.btn-cta-nav:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,69,0,.4); }
+
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.hamburger span { width: 24px; height: 2px; background: var(--white); border-radius: 2px; transition: all .3s; }
+
+.mobile-menu {
+  display: none;
+}
+
+/* ---- HERO ---- */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding: 8rem 2.5rem 5rem;
+  position: relative; overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(255,69,0,0.08) 0%, transparent 70%),
+              radial-gradient(ellipse 40% 40% at 10% 80%, rgba(255,69,0,0.05) 0%, transparent 60%);
+}
+
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: linear-gradient(rgba(255,69,0,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,69,0,0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+.hero-content { position: relative; z-index: 1; max-width: 680px; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: rgba(255,69,0,0.1); border: 1px solid rgba(255,69,0,0.3);
+  padding: .4rem 1rem; border-radius: 100px; margin-bottom: 2rem;
+  font-family: var(--font-ui); font-size: .78rem; font-weight: 600;
+  color: var(--orange); letter-spacing: .08em; text-transform: uppercase;
+  animation: fadeUp 0.6s ease both;
+}
+.hero-badge-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+.hero-title {
+  font-family: var(--font-display); font-size: clamp(3.5rem, 9vw, 7rem);
+  line-height: .95; letter-spacing: .02em;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s .1s ease both;
+}
+.hero-title .accent { color: var(--orange); display: block; }
+.hero-title .line { display: block; }
+
+.hero-sub {
+  font-size: 1.1rem; color: var(--muted); max-width: 520px;
+  line-height: 1.75; margin-bottom: 2.5rem;
+  animation: fadeUp 0.6s .2s ease both;
+}
+
+.hero-actions {
+  display: flex; flex-wrap: wrap; gap: 1rem;
+  animation: fadeUp 0.6s .3s ease both;
+}
+
+.btn-primary {
+  padding: .9rem 2rem; background: var(--orange); color: #fff;
+  border: none; border-radius: 10px; font-family: var(--font-ui);
+  font-size: .95rem; font-weight: 700; cursor: pointer; text-decoration: none;
+  transition: transform .15s, box-shadow .2s; letter-spacing: .03em;
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,69,0,.4); }
+
+.btn-secondary {
+  padding: .9rem 2rem; background: transparent; color: var(--white);
+  border: 1px solid var(--border); border-radius: 10px; font-family: var(--font-ui);
+  font-size: .95rem; font-weight: 600; cursor: pointer; text-decoration: none;
+  transition: border-color .2s, background .2s; letter-spacing: .03em;
+}
+.btn-secondary:hover { border-color: var(--orange); background: rgba(255,69,0,0.05); }
+
+.hero-stats {
+  display: flex; gap: 3rem; margin-top: 3.5rem;
+  animation: fadeUp 0.6s .4s ease both;
+  padding-top: 2rem; border-top: 1px solid var(--border);
+}
+.hero-stat-value { font-family: var(--font-display); font-size: 2.2rem; color: var(--orange); }
+.hero-stat-label { font-size: .8rem; color: var(--muted); font-family: var(--font-ui); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+.hero-visual {
+  position: absolute; right: -2%; top: 50%; transform: translateY(-50%);
+  width: 52%; max-width: 700px; z-index: 1;
+  animation: fadeLeft 0.8s .2s ease both;
+}
+
+.hero-mockup {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,69,0,0.1);
+  position: relative;
+}
+
+.mockup-bar {
+  background: var(--dark); padding: .8rem 1.2rem;
+  display: flex; align-items: center; gap: .5rem;
+  border-bottom: 1px solid var(--border);
+}
+.mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+.mockup-dot:nth-child(1) { background: #ff5f57; }
+.mockup-dot:nth-child(2) { background: #febc2e; }
+.mockup-dot:nth-child(3) { background: #28c840; }
+.mockup-url {
+  flex: 1; background: var(--card); border-radius: 5px;
+  padding: .25rem .75rem; font-family: var(--font-body); font-size: .72rem;
+  color: var(--muted); margin-left: .5rem;
+}
+
+.mockup-img { width: 100%; display: block; }
+
+.mockup-float {
+  position: absolute; background: var(--dark); border: 1px solid var(--border);
+  border-radius: 12px; padding: .8rem 1.2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.mockup-float-1 { bottom: -20px; left: -30px; }
+.mockup-float-2 { top: 60px; right: -25px; }
+
+.float-label { font-family: var(--font-ui); font-size: .68rem; color: var(--muted); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .2rem; }
+.float-value { font-family: var(--font-display); font-size: 1.4rem; }
+.float-value.green { color: var(--green); }
+.float-value.orange { color: var(--orange); }
+
+/* ---- SECTIONS ---- */
+section { padding: 6rem 2.5rem; }
+
+.section-inner { max-width: 1200px; margin: 0 auto; }
+
+.section-tag {
+  font-family: var(--font-ui); font-size: .75rem; font-weight: 700;
+  color: var(--orange); letter-spacing: .12em; text-transform: uppercase;
+  margin-bottom: .75rem; display: flex; align-items: center; gap: .5rem;
+}
+.section-tag::before { content: ''; width: 20px; height: 2px; background: var(--orange); }
+
+.section-title {
+  font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3.8rem);
+  line-height: 1.05; letter-spacing: .02em; margin-bottom: 1.2rem;
+}
+
+.section-sub {
+  font-size: 1.05rem; color: var(--muted); max-width: 560px; line-height: 1.7;
+}
+
+/* ---- WHY SECTION ---- */
+.why-section { background: var(--dark); position: relative; overflow: hidden; }
+.why-section::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--orange), transparent);
+}
+
+.why-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+  align-items: center; margin-top: 4rem;
+}
+
+.why-features { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.why-feature {
+  display: flex; gap: 1.2rem; align-items: flex-start;
+  padding: 1.5rem; background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; transition: border-color .2s, transform .2s;
+  cursor: default;
+}
+.why-feature:hover { border-color: rgba(255,69,0,0.4); transform: translateX(4px); }
+
+.why-feature-icon {
+  width: 48px; height: 48px; background: var(--orange-glow);
+  border: 1px solid rgba(255,69,0,0.2); border-radius: 12px;
+  display: grid; place-items: center; font-size: 1.3rem; flex-shrink: 0;
+}
+
+.why-feature-title { font-family: var(--font-ui); font-weight: 700; font-size: .95rem; margin-bottom: .3rem; }
+.why-feature-desc { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+
+.why-problem {
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  padding: 2.5rem; position: relative; overflow: hidden;
+}
+.why-problem::before {
+  content: '⚠'; position: absolute; top: -20px; right: -10px;
+  font-size: 8rem; opacity: .04; line-height: 1;
+}
+
+.problem-title {
+  font-family: var(--font-ui); font-weight: 800; font-size: 1.1rem;
+  margin-bottom: 1.5rem; color: #ff6b35;
+}
+
+.problem-item {
+  display: flex; gap: .75rem; align-items: flex-start;
+  margin-bottom: 1rem; font-size: .9rem; color: var(--muted);
+}
+.problem-item::before { content: '✗'; color: #ff4444; font-weight: 700; flex-shrink: 0; }
+
+.problem-vs {
+  text-align: center; padding: 1.5rem 0;
+  font-family: var(--font-display); font-size: 2rem; color: var(--border);
+}
+
+.solution-title { font-family: var(--font-ui); font-weight: 800; font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--green); }
+.solution-item {
+  display: flex; gap: .75rem; align-items: flex-start;
+  margin-bottom: 1rem; font-size: .9rem;
+}
+.solution-item::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+/* ---- FEATURES ---- */
+.features-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  margin-top: 3.5rem;
+}
+
+.feature-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  padding: 2rem; position: relative; overflow: hidden;
+  transition: border-color .3s, transform .3s;
+  cursor: default;
+}
+.feature-card:hover { border-color: rgba(255,69,0,0.35); transform: translateY(-4px); }
+.feature-card:hover .feature-img { transform: scale(1.02); }
+
+.feature-card.featured {
+  border-color: rgba(255,69,0,0.3);
+  background: linear-gradient(135deg, var(--card), rgba(255,69,0,0.04));
+  grid-column: span 2;
+}
+
+.feature-number {
+  font-family: var(--font-display); font-size: 4rem; color: rgba(255,69,0,0.08);
+  position: absolute; top: 1rem; right: 1.5rem; line-height: 1;
+}
+
+.feature-icon { font-size: 2rem; margin-bottom: 1rem; }
+.feature-title { font-family: var(--font-ui); font-weight: 800; font-size: 1.1rem; margin-bottom: .6rem; }
+.feature-desc { font-size: .88rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.2rem; }
+
+.feature-pills { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.2rem; }
+.feature-pill {
+  padding: .25rem .7rem; background: rgba(255,69,0,0.1); border: 1px solid rgba(255,69,0,0.2);
+  border-radius: 100px; font-family: var(--font-ui); font-size: .72rem;
+  color: var(--orange); font-weight: 600; letter-spacing: .04em;
+}
+
+.feature-img {
+  width: 100%; border-radius: 12px; border: 1px solid var(--border);
+  display: block; object-fit: cover; transition: transform .3s;
+  background: var(--dark);
+}
+
+/* ---- SCREENSHOT SECTION ---- */
+.screenshots { padding: 6rem 2.5rem; overflow: hidden; }
+
+.scroll-track {
+  display: flex; gap: 1.5rem; width: max-content;
+  animation: scrollLeft 30s linear infinite;
+  margin-top: 3rem;
+}
+.scroll-track:hover { animation-play-state: paused; }
+
+.scroll-item {
+  width: 560px; flex-shrink: 0; border-radius: 16px; overflow: hidden;
+  border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.scroll-item img { width: 100%; display: block; }
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+.gallery-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  overflow: hidden;
+}
+.gallery-img {
+  width: 100%; display: block; object-fit: cover; aspect-ratio: 4 / 3;
+}
+.gallery-caption {
+  padding: 1rem;
+  font-family: var(--font-ui); font-size: .95rem;
+  color: var(--muted);
+}
+
+.mobile-menu .btn-cta-nav {
+  font-family: var(--font-ui); font-size: 1rem;
+  padding: .95rem 1.6rem; background: var(--orange);
+  border-radius: 12px; color: #fff;
+  text-decoration: none; border: none;
+}
+.mobile-menu .btn-cta-nav:hover {
+  background: #ff5c00;
+}
+
+/* ---- PRICING ---- */
+.pricing { background: var(--dark); position: relative; overflow: hidden; }
+.pricing::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--orange), transparent);
+}
+
+.pricing-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+  margin-top: 3.5rem; max-width: 800px;
+}
+
+.pricing-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 2.5rem; position: relative; overflow: hidden;
+  transition: transform .2s;
+}
+.pricing-card:hover { transform: translateY(-4px); }
+
+.pricing-card.popular {
+  border-color: var(--orange);
+  box-shadow: 0 0 40px rgba(255,69,0,0.12), inset 0 0 60px rgba(255,69,0,0.03);
+}
+
+.popular-badge {
+  position: absolute; top: 1.2rem; right: 1.2rem;
+  background: var(--orange); color: #fff; padding: .25rem .7rem;
+  border-radius: 100px; font-family: var(--font-ui); font-size: .7rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+
+.pricing-name { font-family: var(--font-ui); font-weight: 800; font-size: 1rem; margin-bottom: .5rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.pricing-price { font-family: var(--font-display); font-size: 3.5rem; margin-bottom: .3rem; }
+.pricing-price span { font-family: var(--font-ui); font-size: 1rem; color: var(--muted); font-weight: 400; }
+.pricing-desc { font-size: .85rem; color: var(--muted); margin-bottom: 2rem; line-height: 1.5; }
+
+.pricing-features { list-style: none; margin-bottom: 2rem; display: flex; flex-direction: column; gap: .75rem; }
+.pricing-features li {
+  display: flex; gap: .75rem; align-items: center; font-size: .88rem;
+}
+.pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+.btn-pricing {
+  width: 100%; padding: .9rem; border-radius: 10px; font-family: var(--font-ui);
+  font-weight: 700; font-size: .95rem; cursor: pointer; text-decoration: none;
+  display: block; text-align: center; transition: all .2s; letter-spacing: .04em;
+  border: none;
+}
+.btn-pricing.outlined { background: transparent; border: 1px solid var(--border); color: var(--white); }
+.btn-pricing.outlined:hover { border-color: var(--orange); }
+.btn-pricing.filled { background: var(--orange); color: #fff; }
+.btn-pricing.filled:hover { box-shadow: 0 6px 24px rgba(255,69,0,.4); }
+
+/* ---- CONTACT ---- */
+.contact { padding: 6rem 2.5rem; }
+
+.contact-inner {
+  max-width: 900px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+}
+
+.contact-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 2.5rem;
+}
+
+.contact-item {
+  display: flex; align-items: center; gap: 1rem; padding: 1rem 0;
+  border-bottom: 1px solid var(--border); font-size: .95rem;
+}
+.contact-item:last-child { border-bottom: none; }
+
+.contact-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: grid; place-items: center; font-size: 1.1rem; flex-shrink: 0;
+}
+.contact-icon.wa { background: rgba(37,211,102,0.1); border: 1px solid rgba(37,211,102,0.2); }
+.contact-icon.em { background: rgba(255,69,0,0.1); border: 1px solid rgba(255,69,0,0.2); }
+
+.contact-link { color: var(--white); text-decoration: none; font-family: var(--font-ui); font-weight: 600; font-size: .9rem; }
+.contact-link:hover { color: var(--orange); }
+
+.trial-box {
+  background: linear-gradient(135deg, rgba(255,69,0,0.12), rgba(255,69,0,0.04));
+  border: 1px solid rgba(255,69,0,0.25); border-radius: 20px;
+  padding: 2.5rem; text-align: center;
+}
+
+.trial-days {
+  font-family: var(--font-display); font-size: 5rem; color: var(--orange);
+  line-height: 1; margin-bottom: .3rem;
+}
+.trial-label { font-family: var(--font-ui); font-weight: 800; font-size: 1rem; margin-bottom: 1rem; }
+.trial-sub { font-size: .88rem; color: var(--muted); margin-bottom: 2rem; }
+
+/* ---- FOOTER ---- */
+footer {
+  background: var(--dark); border-top: 1px solid var(--border);
+  padding: 2rem 2.5rem; text-align: center;
+  font-size: .82rem; color: var(--muted); font-family: var(--font-ui);
+}
+footer strong { color: var(--orange); }
+
+/* ---- ANIMATIONS ---- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translate(40px, -50%); }
+  to { opacity: 1; transform: translate(0, -50%); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.8); }
+}
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ---- MOBILE ---- */
+@media (max-width: 1024px) {
+  .hero-visual { display: none; }
+  .hero-content { max-width: 100%; }
+  .why-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .feature-card.featured { grid-column: span 2; }
+}
+
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.2rem; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+
+  .mobile-menu {
+    position: fixed; inset: 0; background: rgba(10,10,10,0.97);
+    z-index: 999; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2rem;
+    opacity: 0; pointer-events: none; transition: opacity .3s;
+  }
+  .mobile-menu.open { opacity: 1; pointer-events: all; }
+  .mobile-menu a {
+    font-family: var(--font-display); font-size: 2rem; color: var(--white);
+    text-decoration: none; letter-spacing: .05em; text-align: center;
+  }
+  .mobile-menu a:hover { color: var(--orange); }
+  .mobile-menu { padding: 2rem 1.5rem; }
+  .mobile-menu .btn-cta-nav {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: auto; font-size: 1rem; padding: .95rem 1.6rem;
+    background: var(--orange); border-radius: 12px; color: #fff;
+    letter-spacing: .04em; text-decoration: none;
+  }
+  .mobile-menu .btn-cta-nav:hover { background: #ff5c00; }
+  .nav-actions .btn-cta-nav,
+  .nav-actions .lang-toggle { display: none; }
+
+  .hero { padding: 7rem 1.2rem 4rem; }
+  section { padding: 4rem 1.2rem; }
+
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-card.featured { grid-column: span 1; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .contact-inner { grid-template-columns: 1fr; }
+
+  .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+  .scroll-item { width: 320px; }
+}
+
+/* ---- SCREENSHOTS PLACEHOLDER ---- */
+.ss-placeholder {
+  width: 100%; aspect-ratio: 16/9; background: var(--dark);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-family: var(--font-ui); font-size: .8rem;
+  border: 1px dashed var(--border);
+}
+</style>
+</head>
+<body class="lang-fr">
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#why" onclick="closeMobile()"><span data-fr>Pourquoi</span><span data-en>Why</span></a>
+  <a href="#features" onclick="closeMobile()"><span data-fr>Fonctionnalités</span><span data-en>Features</span></a>
+  <a href="#pricing" onclick="closeMobile()"><span data-fr>Tarifs</span><span data-en>Pricing</span></a>
+  <a href="#contact" onclick="closeMobile()"><span data-fr>Contact</span><span data-en>Contact</span></a>
+  <div class="lang-toggle" style="margin-top:1rem">
+    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  </div>
+  <a href="#contact" class="btn-cta-nav mobile-cta" onclick="closeMobile()">
+    <span data-fr>Essai gratuit</span><span data-en>Free trial</span>
+  </a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">🏋️</div>
+    <div class="nav-logo-text">POWER<span>GYM</span></div>
+  </a>
+
+  <div class="nav-links">
+    <a href="#why"><span data-fr>Pourquoi nous</span><span data-en>Why us</span></a>
+    <a href="#features"><span data-fr>Fonctionnalités</span><span data-en>Features</span></a>
+    <a href="#pricing"><span data-fr>Tarifs</span><span data-en>Pricing</span></a>
+    <a href="#contact">Contact</a>
+  </div>
+
+  <div class="nav-actions">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnFR" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+    </div>
+    <a href="#contact" class="btn-cta-nav">
+      <span data-fr>Essai gratuit</span><span data-en>Free trial</span>
+    </a>
+    <div class="hamburger" onclick="toggleMobile()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      <span data-fr>Conçu pour le Maroc 🇲🇦</span>
+      <span data-en>Built for Morocco 🇲🇦</span>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line" data-fr>GÉREZ VOTRE</span>
+      <span class="line" data-en>MANAGE YOUR</span>
+      <span class="accent" data-fr>SALLE DE SPORT</span>
+      <span class="accent" data-en>GYM SMARTER</span>
+      <span class="line" data-fr>COMME UN PRO.</span>
+      <span class="line" data-en>LIKE A PRO.</span>
+    </h1>
+
+    <p class="hero-sub" data-fr>
+      PowerGym est la plateforme tout-en-un pensée pour les propriétaires de salles au Maroc. Membres, abonnements, encaissements, coaches — tout en un seul endroit.
+    </p>
+    <p class="hero-sub" data-en>
+      PowerGym is the all-in-one platform built for Moroccan gym owners. Members, subscriptions, payments, coaches — all in one place.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">
+        🚀 <span data-fr>Essayer gratuitement 15 jours</span><span data-en>Try free for 15 days</span>
+      </a>
+      <a href="#features" class="btn-secondary">
+        <span data-fr>Voir les fonctionnalités</span><span data-en>See features</span>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-value">150<span style="font-size:1rem;color:var(--muted)">DH</span></div>
+        <div class="hero-stat-label" data-fr>par mois</div>
+        <div class="hero-stat-label" data-en>per month</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">15</div>
+        <div class="hero-stat-label" data-fr>jours offerts</div>
+        <div class="hero-stat-label" data-en>days free trial</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">7/7</div>
+        <div class="hero-stat-label" data-fr>support inclus</div>
+        <div class="hero-stat-label" data-en>support included</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-mockup">
+      <div class="mockup-bar">
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+        <div class="mockup-url">powergym.ma/dashboard</div>
+      </div>
+      <img src="photos/screencapture-127-0-0-1-8000-dashboard-2026-03-27-21_54_41.png" alt="Dashboard PowerGym" class="mockup-img">
+    </div>
+    <div class="mockup-float mockup-float-1">
+      <div class="float-label" data-fr>Revenus Mars</div>
+      <div class="float-label" data-en>March Revenue</div>
+      <div class="float-value green">20,380 DH</div>
+    </div>
+    <div class="mockup-float mockup-float-2">
+      <div class="float-label" data-fr>Bénéfice Net</div>
+      <div class="float-label" data-en>Net Profit</div>
+      <div class="float-value orange">17,030 DH</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY SECTION -->
+<section class="why-section" id="why">
+  <div class="section-inner">
+    <div class="section-tag" data-fr>Le Problème & La Solution</div>
+    <div class="section-tag" data-en>The Problem & The Solution</div>
+
+    <h2 class="section-title reveal" data-fr>Pourquoi choisir <span style="color:var(--orange)">PowerGym</span> ?</h2>
+    <h2 class="section-title reveal" data-en>Why choose <span style="color:var(--orange)">PowerGym</span>?</h2>
+
+    <div class="why-grid">
+      <div class="why-features">
+        <div class="why-feature reveal">
+          <div class="why-feature-icon">🛡️</div>
+          <div>
+            <div class="why-feature-title" data-fr>Zéro Fraude</div>
+            <div class="why-feature-title" data-en>Zero Fraud</div>
+            <div class="why-feature-desc" data-fr>Contrôle strict des accès par QR Code. Chaque membre est vérifié instantanément.</div>
+            <div class="why-feature-desc" data-en>Strict access control via QR Code. Every member is instantly verified.</div>
+          </div>
+        </div>
+        <div class="why-feature reveal">
+          <div class="why-feature-icon">⚡</div>
+          <div>
+            <div class="why-feature-title" data-fr>Gain de Temps</div>
+            <div class="why-feature-title" data-en>Save Time</div>
+            <div class="why-feature-desc" data-fr>Automatisation des rappels de renouvellement et gestion des paiements en un clic.</div>
+            <div class="why-feature-desc" data-en>Automated renewal reminders and one-click payment management.</div>
+          </div>
+        </div>
+        <div class="why-feature reveal">
+          <div class="why-feature-icon">📊</div>
+          <div>
+            <div class="why-feature-title" data-fr>Visibilité Totale</div>
+            <div class="why-feature-title" data-en>Full Visibility</div>
+            <div class="why-feature-desc" data-fr>Statistiques en temps réel de vos revenus, membres actifs et tendances financières.</div>
+            <div class="why-feature-desc" data-en>Real-time stats on your revenue, active members and financial trends.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-problem reveal">
+        <div class="problem-title" data-fr>❌ Avant PowerGym</div>
+        <div class="problem-title" data-en>❌ Before PowerGym</div>
+        <div class="problem-item" data-fr>Abonnements oubliés et fraudes à l'entrée</div>
+        <div class="problem-item" data-en>Forgotten subscriptions and entry fraud</div>
+        <div class="problem-item" data-fr>Comptabilité floue sur papier</div>
+        <div class="problem-item" data-en>Fuzzy paper-based accounting</div>
+        <div class="problem-item" data-fr>Aucune vue sur les revenus réels</div>
+        <div class="problem-item" data-en>No visibility on real revenue</div>
+        <div class="problem-item" data-fr>Perte de temps sur les tâches répétitives</div>
+        <div class="problem-item" data-en>Time wasted on repetitive tasks</div>
+
+        <div class="problem-vs">VS</div>
+
+        <div class="solution-title" data-fr>✅ Avec PowerGym</div>
+        <div class="solution-title" data-en>✅ With PowerGym</div>
+        <div class="solution-item" data-fr>Accès sécurisé par QR Code unique</div>
+        <div class="solution-item" data-en>Secure access with unique QR Code</div>
+        <div class="solution-item" data-fr>Rapports financiers automatiques en PDF</div>
+        <div class="solution-item" data-en>Automatic financial reports in PDF</div>
+        <div class="solution-item" data-fr>Dashboard temps réel des revenus</div>
+        <div class="solution-item" data-en>Real-time revenue dashboard</div>
+        <div class="solution-item" data-fr>Rappels et renouvellements automatisés</div>
+        <div class="solution-item" data-en>Automated reminders and renewals</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-tag" data-fr>Fonctionnalités</div>
+    <div class="section-tag" data-en>Features</div>
+    <h2 class="section-title reveal" data-fr>Tout ce dont votre salle a <span style="color:var(--orange)">besoin</span></h2>
+    <h2 class="section-title reveal" data-en>Everything your gym <span style="color:var(--orange)">needs</span></h2>
+
+    <div class="features-grid">
+
+      <!-- Dashboard -->
+      <div class="feature-card featured reveal">
+        <div class="feature-number">01</div>
+        <div class="feature-icon">📊</div>
+        <div class="feature-title" data-fr>Tableau de Bord Analytique</div>
+        <div class="feature-title" data-en>Analytics Dashboard</div>
+        <div class="feature-desc" data-fr>Le cerveau de votre salle. Visualisez en un clin d'œil vos membres actifs, revenus du mois et alertes d'expiration.</div>
+        <div class="feature-desc" data-en>Your gym's brain. Instantly see active members, monthly revenue, and expiration alerts.</div>
+        <div class="feature-pills">
+          <span class="feature-pill" data-fr>Revenus en temps réel</span><span class="feature-pill" data-en>Real-time revenue</span>
+          <span class="feature-pill" data-fr>Alertes expiration</span><span class="feature-pill" data-en>Expiry alerts</span>
+          <span class="feature-pill" data-fr>Tendances financières</span><span class="feature-pill" data-en>Financial trends</span>
+        </div>
+        <img src="photos/screencapture-127-0-0-1-8000-dashboard-2026-03-27-21_54_41.png" alt="Dashboard" class="feature-img">
+      </div>
+
+      <!-- Members -->
+      <div class="feature-card reveal">
+        <div class="feature-number">02</div>
+        <div class="feature-icon">👥</div>
+        <div class="feature-title" data-fr>Gestion des Membres</div>
+        <div class="feature-title" data-en>Member Management</div>
+        <div class="feature-desc" data-fr>Profils complets, historique des paiements, renouvellements en un clic et contact WhatsApp direct.</div>
+        <div class="feature-desc" data-en>Full profiles, payment history, one-click renewals and direct WhatsApp contact.</div>
+        <div class="feature-pills">
+          <span class="feature-pill">WhatsApp</span>
+          <span class="feature-pill" data-fr>Historique</span><span class="feature-pill" data-en>History</span>
+        </div>
+        <img src="photos/screencapture-127-0-0-1-8000-members-2026-03-27-21_55_07.png" alt="Members" class="feature-img">
+      </div>
+
+      <!-- Plans -->
+      <div class="feature-card reveal">
+        <div class="feature-number">03</div>
+        <div class="feature-icon">📋</div>
+        <div class="feature-title" data-fr>Plans d'Abonnement</div>
+        <div class="feature-title" data-en>Subscription Plans</div>
+        <div class="feature-desc" data-fr>Créez des plans sur mesure : Teckwando, Boxing, Solo Coaching, MMA et bien plus.</div>
+        <div class="feature-desc" data-en>Create custom plans: Teckwando, Boxing, Solo Coaching, MMA and more.</div>
+        <div class="feature-pills">
+          <span class="feature-pill" data-fr>Plans flexibles</span><span class="feature-pill" data-en>Flexible plans</span>
+          <span class="feature-pill" data-fr>Multi-disciplines</span><span class="feature-pill" data-en>Multi-disciplines</span>
+        </div>
+        <img src="photos/screencapture-127-0-0-1-8000-plans-2026-03-27-21_55_25.png" alt="Plans" class="feature-img">
+      </div>
+
+      <!-- Coaches -->
+      <div class="feature-card featured reveal">
+        <div class="feature-number">04</div>
+        <div class="feature-icon">🏆</div>
+        <div class="feature-title" data-fr>Gestion des Coaches</div>
+        <div class="feature-title" data-en>Coach Management</div>
+        <div class="feature-desc" data-fr>Gérez vos coachs, leurs salaires et statuts de paiement. Historique complet et règlement en un clic.</div>
+        <div class="feature-desc" data-en>Manage coaches, salaries and payment statuses. Full history and one-click settlement.</div>
+        <div class="feature-pills">
+          <span class="feature-pill" data-fr>Paiement salaire</span><span class="feature-pill" data-en>Salary payment</span>
+          <span class="feature-pill" data-fr>Historique</span><span class="feature-pill" data-en>History</span>
+          <span class="feature-pill" data-fr>Multi-coachs</span><span class="feature-pill" data-en>Multi-coaches</span>
+        </div>
+        <img src="photos/screencapture-127-0-0-1-8000-coaches-2026-03-27-21_59_02.png" alt="Coaches" class="feature-img">
+      </div>
+
+      <!-- Expenses -->
+      <div class="feature-card reveal">
+        <div class="feature-number">05</div>
+        <div class="feature-icon">💰</div>
+        <div class="feature-title" data-fr>Suivi des Dépenses</div>
+        <div class="feature-title" data-en>Expense Tracking</div>
+        <div class="feature-desc" data-fr>Enregistrez toutes vos dépenses (salaires, stock, charges) et exportez vos rapports financiers en PDF.</div>
+        <div class="feature-desc" data-en>Record all expenses (salaries, stock, charges) and export financial reports in PDF.</div>
+        <div class="feature-pills">
+          <span class="feature-pill">PDF Export</span>
+          <span class="feature-pill" data-fr>Catégories</span><span class="feature-pill" data-en>Categories</span>
+        </div>
+        <img src="photos/screencapture-127-0-0-1-8000-expenses-2026-03-27-21_59_17.png" alt="Expenses" class="feature-img">
+      </div>
+
+      <!-- Gym Shop -->
+      <div class="feature-card reveal">
+        <div class="feature-number">06</div>
+        <div class="feature-icon">🛒</div>
+        <div class="feature-title" data-fr>Gym Shop Intégré</div>
+        <div class="feature-title" data-en>Built-in Gym Shop</div>
+        <div class="feature-desc" data-fr>Vendez des équipements et suppléments directement depuis l'appli. Gestion du stock et rapports de vente.</div>
+        <div class="feature-desc" data-en>Sell equipment and supplements directly from the app. Stock management and sales reports.</div>
+        <div class="feature-pills">
+          <span class="feature-pill" data-fr>Gestion stock</span><span class="feature-pill" data-en>Stock management</span>
+          <span class="feature-pill" data-fr>Vente directe</span><span class="feature-pill" data-en>Direct sales</span>
+        </div>
+        <img src="photos/screencapture-127-0-0-1-8000-products-2026-03-27-21_59_40.png" alt="Shop" class="feature-img">
+      </div>
+
+      <!-- Gym Board -->
+      <div class="feature-card reveal">
+        <div class="feature-number">07</div>
+        <div class="feature-icon">📌</div>
+        <div class="feature-title" data-fr>Tableau de Bord Opérationnel</div>
+        <div class="feature-title" data-en>Operations Board</div>
+        <div class="feature-desc" data-fr>Gérez vos tâches quotidiennes avec un Kanban visuel : À faire, En cours, Terminé.</div>
+        <div class="feature-desc" data-en>Manage daily tasks with a visual Kanban board: To Do, In Progress, Done.</div>
+        <div class="feature-pills">
+          <span class="feature-pill">Kanban</span>
+          <span class="feature-pill" data-fr>Tâches équipe</span><span class="feature-pill" data-en>Team tasks</span>
+        </div>
+        <img src="photos/screencapture-127-0-0-1-8000-tasks-2026-03-27-21_59_52.png" alt="Board" class="feature-img">
+      </div>
+
+      <!-- Security -->
+      <div class="feature-card featured reveal">
+        <div class="feature-number">08</div>
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title" data-fr>Sécurité & Confidentialité</div>
+        <div class="feature-title" data-en>Security & Privacy</div>
+        <div class="feature-desc" data-fr>Vos données sont isolées, protégées et sauvegardées quotidiennement. Multi-Gym : chaque salle a son espace privé. Contrôlez les accès de votre staff.</div>
+        <div class="feature-desc" data-en>Your data is isolated, protected and backed up daily. Multi-Gym: each gym has its own private space. Control your staff's access levels.</div>
+        <div class="feature-pills">
+          <span class="feature-pill" data-fr>Backups quotidiens</span><span class="feature-pill" data-en>Daily backups</span>
+          <span class="feature-pill" data-fr>Accès staff contrôlé</span><span class="feature-pill" data-en>Controlled staff access</span>
+          <span class="feature-pill">Multi-Gym</span>
+          <span class="feature-pill" data-fr>Données isolées</span><span class="feature-pill" data-en>Isolated data</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SCROLLING SCREENSHOTS -->
+<section class="screenshots" style="padding-top:0">
+  <div class="section-inner">
+    <div class="section-tag" data-fr>Aperçu de l'interface</div>
+    <div class="section-tag" data-en>Interface Preview</div>
+    <h2 class="section-title reveal" data-fr>Une interface <span style="color:var(--orange)">moderne</span> et intuitive</h2>
+    <h2 class="section-title reveal" data-en>A <span style="color:var(--orange)">modern</span> and intuitive interface</h2>
+  </div>
+
+  <div style="overflow:hidden;margin-top:2rem">
+    <div class="scroll-track">
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-dashboard-2026-03-27-21_54_41.png" alt="Dashboard"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-members-2026-03-27-21_55_07.png" alt="Members"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-plans-2026-03-27-21_55_25.png" alt="Plans"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-coaches-2026-03-27-21_59_02.png" alt="Coaches"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-expenses-2026-03-27-21_59_17.png" alt="Expenses"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-products-2026-03-27-21_59_40.png" alt="Products"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-tasks-2026-03-27-21_59_52.png" alt="Tasks"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-members-1-2026-03-27-22_01_33.png" alt="Member Detail"></div>
+      <!-- duplicate for seamless loop -->
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-dashboard-2026-03-27-21_54_41.png" alt="Dashboard"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-members-2026-03-27-21_55_07.png" alt="Members"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-plans-2026-03-27-21_55_25.png" alt="Plans"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-coaches-2026-03-27-21_59_02.png" alt="Coaches"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-expenses-2026-03-27-21_59_17.png" alt="Expenses"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-products-2026-03-27-21_59_40.png" alt="Products"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-tasks-2026-03-27-21_59_52.png" alt="Tasks"></div>
+      <div class="scroll-item"><img src="photos/screencapture-127-0-0-1-8000-members-1-2026-03-27-22_01_33.png" alt="Member Detail"></div>
+    </div>
+  </div>
+</section>
+
+<section class="gallery">
+  <div class="section-inner">
+    <div class="section-tag" data-fr>Photos de la salle</div>
+    <div class="section-tag" data-en>Gym photos</div>
+    <h2 class="section-title reveal" data-fr>Découvrez notre espace et notre équipe</h2>
+    <h2 class="section-title reveal" data-en>Explore our space and team</h2>
+
+    <div class="gallery-grid">
+      <div class="gallery-card reveal">
+        <img src="photos/Screenshot%202026-03-31%20210744.png" alt="Vue de la salle" class="gallery-img">
+        <div class="gallery-caption" data-fr>Ambiance moderne et professionnelle.</div>
+        <div class="gallery-caption" data-en>Modern and professional atmosphere.</div>
+      </div>
+      <div class="gallery-card reveal">
+        <img src="photos/screencapture-127-0-0-1-8000-dashboard-2026-03-27-21_54_41.png" alt="Dashboard PowerGym" class="gallery-img">
+        <div class="gallery-caption" data-fr>Tableau de bord complet pour votre salle.</div>
+        <div class="gallery-caption" data-en>Complete dashboard for your gym.</div>
+      </div>
+      <div class="gallery-card reveal">
+        <img src="photos/screencapture-127-0-0-1-8000-members-2026-03-27-21_55_07.png" alt="Gestion des membres" class="gallery-img">
+        <div class="gallery-caption" data-fr>Gestion des membres simple et fluide.</div>
+        <div class="gallery-caption" data-en>Easy and smooth member management.</div>
+      </div>
+      <div class="gallery-card reveal">
+        <img src="photos/screencapture-127-0-0-1-8000-coaches-2026-03-27-21_59_02.png" alt="Gestion des coachs" class="gallery-img">
+        <div class="gallery-caption" data-fr>Suivi des coachs et planning intégré.</div>
+        <div class="gallery-caption" data-en>Coach tracking and integrated scheduling.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-inner">
+    <div class="section-tag" data-fr>Tarification Simple</div>
+    <div class="section-tag" data-en>Simple Pricing</div>
+    <h2 class="section-title reveal" data-fr>Choisissez votre <span style="color:var(--orange)">formule</span></h2>
+    <h2 class="section-title reveal" data-en>Choose your <span style="color:var(--orange)">plan</span></h2>
+    <p class="section-sub reveal" data-fr>Pas de surprise, pas de frais cachés. Un tarif pensé pour le marché marocain.</p>
+    <p class="section-sub reveal" data-en>No surprises, no hidden fees. A price built for the Moroccan market.</p>
+
+    <div class="pricing-grid">
+
+      <!-- Monthly -->
+      <div class="pricing-card reveal">
+        <div class="pricing-name" data-fr>Mensuel</div>
+        <div class="pricing-name" data-en>Monthly</div>
+        <div class="pricing-price">150 <span>DH / <span data-fr>mois</span><span data-en>mo</span></span></div>
+        <div class="pricing-desc" data-fr>Sans engagement. Résiliez à tout moment.</div>
+        <div class="pricing-desc" data-en>No commitment. Cancel anytime.</div>
+        <ul class="pricing-features">
+          <li data-fr>Membres illimités</li><li data-en>Unlimited members</li>
+          <li data-fr>Toutes les fonctionnalités incluses</li><li data-en>All features included</li>
+          <li data-fr>Support 7j/7 par WhatsApp</li><li data-en>7/7 WhatsApp support</li>
+          <li data-fr>Mises à jour gratuites</li><li data-en>Free updates</li>
+          <li data-fr>Essai gratuit 15 jours</li><li data-en>15-day free trial</li>
+        </ul>
+        <a href="#contact" class="btn-pricing outlined" data-fr>Commencer l'essai gratuit</a>
+        <a href="#contact" class="btn-pricing outlined" data-en>Start free trial</a>
+      </div>
+
+      <!-- Lifetime -->
+      <div class="pricing-card popular reveal">
+        <div class="popular-badge" data-fr>⭐ Meilleure valeur</div>
+        <div class="popular-badge" data-en>⭐ Best value</div>
+        <div class="pricing-name" data-fr>À vie</div>
+        <div class="pricing-name" data-en>Lifetime</div>
+        <div class="pricing-price">1500 <span>DH</span></div>
+        <div class="pricing-desc" data-fr>Paiement unique. Accès à vie. Aucun abonnement.</div>
+        <div class="pricing-desc" data-en>One-time payment. Lifetime access. No subscription.</div>
+        <ul class="pricing-features">
+          <li data-fr>Tout du plan mensuel</li><li data-en>Everything in monthly</li>
+          <li data-fr>Accès à vie garanti</li><li data-en>Guaranteed lifetime access</li>
+          <li data-fr>Toutes les futures mises à jour</li><li data-en>All future updates</li>
+          <li data-fr>Priorité support</li><li data-en>Priority support</li>
+          <li data-fr>Économisez vs abonnement annuel</li><li data-en>Save vs annual subscription</li>
+          <li data-fr>Installation et formation incluses</li><li data-en>Installation & training included</li>
+        </ul>
+        <a href="#contact" class="btn-pricing filled" data-fr>Acheter maintenant</a>
+        <a href="#contact" class="btn-pricing filled" data-en>Buy now</a>
+      </div>
+
+    </div>
+
+    <p style="text-align:center;margin-top:2rem;color:var(--muted);font-size:.85rem;font-family:var(--font-ui)" data-fr>
+      🎁 Les 15 premiers jours sont offerts pour tout nouveau client — sans carte bancaire requise.
+    </p>
+    <p style="text-align:center;margin-top:2rem;color:var(--muted);font-size:.85rem;font-family:var(--font-ui)" data-en>
+      🎁 First 15 days are free for all new clients — no credit card required.
+    </p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="section-tag" style="justify-content:center" data-fr>Contact & Démo</div>
+      <div class="section-tag" style="justify-content:center" data-en>Contact & Demo</div>
+      <h2 class="section-title reveal" style="text-align:center" data-fr>Prêt à <span style="color:var(--orange)">transformer</span> votre gestion ?</h2>
+      <h2 class="section-title reveal" style="text-align:center" data-en>Ready to <span style="color:var(--orange)">transform</span> your management?</h2>
+      <p class="section-sub reveal" style="margin:0 auto;text-align:center" data-fr>Contactez-nous dès maintenant. Installation rapide, assistance 7j/7.</p>
+      <p class="section-sub reveal" style="margin:0 auto;text-align:center" data-en>Contact us now. Fast setup, 7/7 support.</p>
+    </div>
+
+    <div class="contact-inner" style="max-width:700px">
+
+      <div class="trial-box reveal" style="text-align:center">
+        <div class="trial-days">15</div>
+        <div class="trial-label" data-fr>Jours d'essai GRATUIT</div>
+        <div class="trial-label" data-en>Days FREE Trial</div>
+        <div class="trial-sub" data-fr>Aucun engagement. Aucune carte bancaire. Démarrez aujourd'hui.</div>
+        <div class="trial-sub" data-en>No commitment. No credit card. Start today.</div>
+        <a href="https://wa.me/212767629168?text=Bonjour%2C%20je%20veux%20essayer%20PowerGym%20gratuitement" target="_blank" class="btn-primary" style="display:inline-flex;margin-bottom:1rem">
+          📱 <span data-fr>Démarrer l'essai gratuit</span><span data-en>Start free trial</span>
+        </a>
+      </div>
+
+      <div>
+        <div class="contact-card reveal">
+          <div class="contact-item">
+            <div class="contact-icon wa">📱</div>
+            <div>
+              <div style="font-size:.75rem;color:var(--muted);font-family:var(--font-ui);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.2rem">WhatsApp</div>
+              <a href="https://wa.me/212767629168" class="contact-link" target="_blank">07 67 62 91 68</a>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon em">✉️</div>
+            <div>
+              <div style="font-size:.75rem;color:var(--muted);font-family:var(--font-ui);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.2rem">Email</div>
+              <a href="mailto:sofianlkhassibi10@gmail.com" class="contact-link">sofianlkhassibi10@gmail.com</a>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem" class="reveal">
+          <div style="font-family:var(--font-ui);font-weight:700;font-size:.85rem;margin-bottom:1rem" data-fr>Ce qui est inclus dans la démo :</div>
+          <div style="font-family:var(--font-ui);font-weight:700;font-size:.85rem;margin-bottom:1rem" data-en>What's included in the demo:</div>
+          <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.85rem;color:var(--muted)">
+            <div data-fr>✅ Accès complet à toutes les fonctionnalités</div>
+            <div data-en>✅ Full access to all features</div>
+            <div data-fr>✅ Configuration personnalisée pour votre salle</div>
+            <div data-en>✅ Custom setup for your gym</div>
+            <div data-fr>✅ Formation incluse (1h en ligne)</div>
+            <div data-en>✅ Training included (1h online)</div>
+            <div data-fr>✅ Support direct par WhatsApp</div>
+            <div data-en>✅ Direct WhatsApp support</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:.5rem">
+    <strong>POWER<span style="color:var(--orange-light)">GYM</span></strong> — 
+    <span data-fr>La plateforme de gestion de salle conçue pour le Maroc.</span>
+    <span data-en>The gym management platform built for Morocco.</span>
+  </div>
+  <div style="color:rgba(136,136,136,0.6);font-size:.75rem">
+    📱 07 67 62 91 68 &nbsp;|&nbsp; ✉️ sofianlkhassibi10@gmail.com &nbsp;|&nbsp; 🇲🇦 Maroc
+  </div>
+</footer>
+
+<script>
+// Language switcher
+function setLang(lang) {
+  document.body.className = 'lang-' + lang;
+  document.getElementById('btnFR').className = 'lang-btn' + (lang === 'fr' ? ' active' : '');
+  document.getElementById('btnEN').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+  // sync mobile menu buttons
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
+  });
+}
+
+// Mobile menu
+function toggleMobile() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+function closeMobile() {
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Stagger sibling reveals
+document.querySelectorAll('.features-grid, .why-features').forEach(grid => {
+  grid.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = (i * 0.08) + 's';
+  });
+});
+</script>
+</body>
+</html>
+
